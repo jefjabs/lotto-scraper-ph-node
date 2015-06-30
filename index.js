@@ -2,7 +2,6 @@ var async = require("async");
 var fs = require("fs");
 var http = require("http");
 var zlib = require("zlib");
-var striptags = require('striptags');
 
 var tasks=[
 	function(){Start("6-55results")},
