@@ -1,5 +1,4 @@
 var async = require("async");
-var cheerio = require("cheerio");
 var fs = require("fs");
 var http = require("http");
 var zlib = require("zlib");
@@ -28,22 +27,24 @@ function Start(path){
 	}
 	
 	var gunzip = zlib.createGunzip();
-	var resStr = "";
+	var html = "";
 	http.get(options,function(res){
 		res.pipe(gunzip);
 
 		gunzip.on("data",function(data){
-			resStr += data;
+			html += data;
 		});
 
 		gunzip.on("end",function(){
 			var filestream = fs.createWriteStream("results/"+path+".csv").on("open",function(){
-				$ = cheerio.load(resStr);
-				var html = $("table").html();
-				html = html.replace(/\<\/td\>/ig,",")
-						.replace(/<\/tr\>/ig,"\n")
-						.replace(/\&\#xA0\;/ig,"")
-						.replace(/(<([^>]+)>)/ig,"");
+				html = html
+					.replace(/\<\/td\>/ig,",")
+					.replace(/<\/tr\>/ig,"\n")
+					.replace(/\&nbsp\;/ig,"")
+					.replace(/\&\#xA0\;/ig,"")
+					.replace(/^\s*\n/gm,"")
+					.replace(/(<([^>]+)>)/ig,"")
+					.substring(442,html.length);
 				filestream.write(html);
 				filestream.end();
 			});
